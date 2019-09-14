@@ -38,7 +38,7 @@ describe('TwoService', () => {
     expect(service).toBeDefined();
   });
 
-  describe('should spy on OneServiceMock.doOneThing()', () => {
+  describe('different spies', () => {
     it('when spying on oneService from module.get()', () => {
       const spy = jest.spyOn(oneService, 'doOneThing')
       service.doTwoThing()
@@ -48,7 +48,7 @@ describe('TwoService', () => {
     it('when spying on OneService.prototype', () => {
       const spy = jest.spyOn(OneService.prototype, 'doOneThing')
       service.doTwoThing()
-      expect(spy).toHaveBeenCalledTimes(0)
+      expect(spy).toHaveBeenCalledTimes(1)
     })
 
     it('when spying on OneServiceMock.prototype', () => {
