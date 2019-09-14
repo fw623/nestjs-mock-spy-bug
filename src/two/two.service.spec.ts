@@ -45,6 +45,12 @@ describe('TwoService', () => {
       expect(spy).toHaveBeenCalledTimes(1)
     })
 
+    it('when spying on oneService from module.get() (via ThreeService)', () => {
+      const spy = jest.spyOn(oneService, 'doOneThing')
+      service.doTwoThing2()
+      expect(spy).toHaveBeenCalledTimes(1)
+    })
+
     it('when spying on OneService.prototype', () => {
       const spy = jest.spyOn(OneService.prototype, 'doOneThing')
       service.doTwoThing()
