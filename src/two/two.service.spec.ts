@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { TwoService } from './two.service';
 import { OneService } from '../one/one.service';
+import { OneModule } from '../one/one.module';
 import { ThreeModule } from '../three/three.module';
 import { OneServiceMock } from '../classes';
 import { Logger } from '@nestjs/common';
@@ -12,12 +13,12 @@ describe('TwoService', () => {
 
   beforeAll(async () => {
     module = await Test.createTestingModule({
-      imports: [ThreeModule],
-      providers: [TwoService, {
-        provide: OneService,
-        useClass: OneServiceMock,
-      }],
-    }).compile();
+      imports: [OneModule, ThreeModule],
+      providers: [TwoService],
+    })
+    .overrideProvider(OneService)
+    .useClass(OneServiceMock)
+    .compile();
 
     service = module.get<TwoService>(TwoService);
     oneService = module.get<OneService>(OneService)
@@ -42,6 +43,12 @@ describe('TwoService', () => {
     it('when spying on oneService from module.get()', () => {
       const spy = jest.spyOn(oneService, 'doOneThing')
       service.doTwoThing()
+      expect(spy).toHaveBeenCalledTimes(1)
+    })
+
+    it('when spying on oneService from module.get() (via ThreeService)', () => {
+      const spy = jest.spyOn(oneService, 'doOneThing')
+      service.doTwoThing2()
       expect(spy).toHaveBeenCalledTimes(1)
     })
 
