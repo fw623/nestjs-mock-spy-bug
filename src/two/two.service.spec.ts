@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { TwoService } from './two.service';
 import { OneService } from '../one/one.service';
 import { ThreeModule } from '../three/three.module';
-import { OneServiceMock } from '../classes';
+import { OneServiceMock } from '../mock';
 import { Logger } from '@nestjs/common';
 
 describe('TwoService', () => {
@@ -21,8 +21,14 @@ describe('TwoService', () => {
 
     service = module.get<TwoService>(TwoService);
     oneService = module.get<OneService>(OneService)
-    Logger.debug(oneService)
+
+    oneService.doOneThing()
+    Logger.debug('^ from module.get()')
   });
+
+  afterEach(() => {
+    jest.clearAllMocks()
+  })
 
   afterAll(async () => {
     await module.close()
@@ -32,18 +38,23 @@ describe('TwoService', () => {
     expect(service).toBeDefined();
   });
 
-  it('should spy on OneServiceMock.doOneThing()', () => {
-    // not working when spying on service from module.get()
-    // (it spies on actual OneService because oneService is an instance of OneService)
-    const spy = jest.spyOn(oneService, 'doOneThing')
-    service.doTwoThing()
-    expect(spy).toHaveBeenCalledTimes(1)
-  })
+  describe('should spy on OneServiceMock.doOneThing()', () => {
+    it('when spying on oneService from module.get()', () => {
+      const spy = jest.spyOn(oneService, 'doOneThing')
+      service.doTwoThing()
+      expect(spy).toHaveBeenCalledTimes(1)
+    })
 
-  it('should call OneServiceMock.doOneThing()', () => {
-    // working when spying on mocked Service
-    const spy = jest.spyOn(OneServiceMock.prototype, 'doOneThing')
-    service.doTwoThing()
-    expect(spy).toHaveBeenCalledTimes(1)
+    it('when spying on OneService.prototype', () => {
+      const spy = jest.spyOn(OneService.prototype, 'doOneThing')
+      service.doTwoThing()
+      expect(spy).toHaveBeenCalledTimes(0)
+    })
+
+    it('when spying on OneServiceMock.prototype', () => {
+      const spy = jest.spyOn(OneServiceMock.prototype, 'doOneThing')
+      service.doTwoThing()
+      expect(spy).toHaveBeenCalledTimes(1)
+    })
   })
 });
